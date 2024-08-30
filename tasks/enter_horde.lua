@@ -42,9 +42,10 @@ local enter_horde_task = {
                     tracker.horde_attempt_count = tracker.horde_attempt_count + 1
                     console.print("Attempt " .. tracker.horde_attempt_count .. " to open horde portal")
 
-                    if utils.press_enter_powershell(script_path) then --if utils.press_enter_python(python_path) then
+                    if utils.press_enter_powershell(script_path) then --if utils.press_enter_python(python_path) then --
+
                         -- Wait for PowerShell script to potentially open the portal
-                        for i = 1, POWERSHELL_WAIT_TIME * 10 do  -- 10 checks per second
+                        for i = 1, POWERSHELL_WAIT_TIME * 5 do  -- 10 checks per second
                             coroutine.yield()
                             if utils.get_horde_portal() then
                                 tracker.horde_opened = true
@@ -63,7 +64,7 @@ local enter_horde_task = {
                     end
 
                     -- Wait before next attempt
-                    for i = 1, ATTEMPT_DELAY * 10 do  -- 10 yields per second
+                    for i = 1, ATTEMPT_DELAY * 3 do  -- 10 yields per second
                         coroutine.yield()
                     end
                 end
