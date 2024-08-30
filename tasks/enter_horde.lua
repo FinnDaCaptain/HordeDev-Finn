@@ -8,12 +8,13 @@ local ATTEMPT_DELAY = 5 -- seconds
 local POWERSHELL_WAIT_TIME = 3 -- seconds
 local horde_portal_coords = vec3:new(30.581279754639, -477.47695922852, -24.44921875)
 
+
 local function execute_powershell_script()
     local script_path = "C:\\users\\finnd\\desktop\\diablo_qqt\\scripts\\HordeDev-Finn\\send_key.ps1"
-    local command = string.format('start /b powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "%s"', script_path)
+    local command = string.format('powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "%s"', script_path)
     
     local result = os.execute(command)
-    if result then
+    if result == 0 then  -- os.execute returns 0 on success
         console.print("PowerShell script execution initiated.")
         return true
     else
@@ -21,6 +22,7 @@ local function execute_powershell_script()
         return false
     end
 end
+
 
 local function enter_horde(portal)
     if portal and utils.distance_to(portal) < 2 then
@@ -54,7 +56,7 @@ local enter_horde_task = {
                     tracker.horde_attempt_count = tracker.horde_attempt_count + 1
                     console.print("Attempt " .. tracker.horde_attempt_count .. " to open horde portal")
 
-                    if execute_powershell_script() then
+                    if execute_python_script() then
                         -- Wait for PowerShell script to potentially open the portal
                         for i = 1, POWERSHELL_WAIT_TIME * 10 do  -- 10 checks per second
                             coroutine.yield()
