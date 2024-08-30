@@ -2,6 +2,19 @@ local settings = require "core.settings"
 local enums    = require "data.enums"
 local utils    = {}
 
+function utils.press_enter_powershell(script_path)
+    local command = string.format('powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -Command "& {%s; exit}"', script_content)
+
+    local result = os.execute(command)
+    if result == 0 then  -- os.execute returns 0 on success
+        console.print("PowerShell script execution initiated.")
+        return true
+    else
+        console.print("Failed to initiate PowerShell script execution")
+        return false
+    end
+end
+
 function utils.distance_to(target)
     local player_pos = get_player_position()
     local target_pos
