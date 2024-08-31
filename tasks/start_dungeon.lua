@@ -30,7 +30,7 @@ local function use_dungeon_sigil()
             end
         end
     end
-    console.print("Dungeon Sigil not found in inventory.")
+    console.print("Dungeon Sigil not found in inventory. Stopping Bot")
     settings.enabled = false
     gui.elements.main_toggle:set(settings.enabled)
     return false
