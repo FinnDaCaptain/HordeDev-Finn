@@ -6,6 +6,7 @@ local boss_room = {
     is_task_running = false,
     boss_room_coroutine = nil,
     max_boss_spawn_wait_time = 30,
+    combat_range = 5, -- Define a combat range threshold
 }
 
 local horde_boss_room_position = vec3:new(-36.17675, -36.3222, 2.200)
@@ -68,10 +69,16 @@ function boss_room:handle_boss_room_actions(action)
         local player_pos = get_player_position()
         if player_pos then
             local target = get_targets.select_target(player_pos, 25)
-            if target and utils.distance_to(target) > 1 then
-                pathfinder.force_move_raw(target:get_position())
-            else
+            if target then
+                local distance_to_target = utils.distance_to(target:get_position())
+                if distance_to_target > self.combat_range then
+                    pathfinder.force_move_raw(target:get_position())
+                else
+                    console.print("In combat range. No movement required.")
+                end
                 console.print("Fighting Boss")
+            else
+                console.print("Error: No valid target found")
             end
         else
             console.print("Error: Unable to get player position")

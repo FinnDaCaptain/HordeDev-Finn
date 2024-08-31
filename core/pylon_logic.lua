@@ -20,7 +20,6 @@ local pylons = {
     "ReduceAllResistance",     -- Reduce All Resist -10%, Council grants +15 Aether
     "EmpoweredCouncil",        -- Fell Council +50% Damage, Council grants +15 Aether
     "EmpoweredMasses",         -- Aetheric Mass damage: +25%, Aetheric Mass grants +1 Aether
-    "EnergizingMasses",        -- Slaying Aetheric Masses slow you, While slowed this way, you have UNLIMITED RESOURCES
     "ThrivingMasses",          -- Masses deal unavoidable damage, Wave start, spawn an Aetheric Mass
     "DeadlySpires",            -- Soulspires Drain Health, Soulspires grant +2 Aether
     "CorruptingSpires",        -- Soulspires empower nearby foes, they also pull enemies inward
@@ -28,7 +27,8 @@ local pylons = {
     "UnstableFiends",          -- Elite Damage +25%, Aether Fiends explode and damage FOES
     "RagingHellfire",          -- Hellfire rains upon you, at the end of each wave spawn 1-3 Aether
     "GestatingMasses",         -- Masses spawn an Aether lord on Death, Aether Lords Grant +3 Aether
-    "InfernalLords"            -- Aether Lords Now Spawn, they grant +3 Aether
+    "InfernalLords",           -- Aether Lords Now Spawn, they grant +3 Aether
+    "EnergizingMasses"        -- Slaying Aetheric Masses slow you, While slowed this way, you have UNLIMITED RESOURCES
 }
 
 local pylon_priority = {}
