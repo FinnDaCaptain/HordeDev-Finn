@@ -30,7 +30,13 @@ local function use_dungeon_sigil()
             end
         end
     end
-    console.print("Dungeon Sigil not found in inventory. Stopping Bot")
+    console.print("Dungeon Sigil not found in inventory. Teleporting to Zarbinzet and stopping Bot.")
+    
+    -- Teleport to Zarbinzet
+    local ZARBINZET_WAYPOINT_ID = 0xA46E5  -- Waypoint ID for Zarbinzet
+    teleport_to_waypoint(ZARBINZET_WAYPOINT_ID)
+    console.print("Teleported to Zarbinzet.")
+    
     settings.enabled = false
     gui.elements.main_toggle:set(settings.enabled)
     return false
