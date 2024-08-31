@@ -6,7 +6,7 @@ local get_targets = require "core.get_targets"
 local pylon_logic = require "core.pylon_logic"
 
 -- Set debug mode
-get_targets.set_debug_mode(true)
+get_targets.set_debug_mode(false)
 
 local horde = {
     state = "idle",
