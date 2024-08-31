@@ -16,6 +16,20 @@ function utils.press_enter_powershell(script_path)
     end
 end
 
+function utils.press_enter_python(python_path)
+    local command = string.format('powershell.exe -WindowStyle Hidden -Command "& {python \'%s\'; exit}"', python_path)
+
+    local result = os.execute(command)
+    if result then  -- os.execute returns 0 on success
+        console.print("Python script execution initiated.")
+        return true
+    else
+        console.print("Failed to initiate Python script execution")
+        return false
+    end
+end
+
+
 function utils.distance_to(target)
     local player_pos = get_player_position()
     local target_pos

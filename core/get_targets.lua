@@ -2,11 +2,39 @@ local get_targets = {}
 
 local debug_mode = false
 local last_target_switch_time = 0
-local current_target = nil
+local current_target_id = nil
+local current_target_priority = 0
 local TARGET_SWITCH_COOLDOWN = 1.0  -- 1 second cooldown
+
+local priority_map = {
+    Boss = 8,
+    HellSeeker = 7,
+    Champion = 6,
+    Membrane = 5,
+    Mass = 4,
+    Spire = 3,
+    Elite = 2,
+    Monster = 1
+}
+
+local target_types = {"Boss", "HellSeeker", "Champion", "Membrane", "Mass", "Spire", "Elite", "Monster"}
+
+-- Cache for actor types to reduce repeated calculations
+local actor_type_cache = setmetatable({}, {__mode = "k"})  -- Weak keys to allow garbage collection
+
+-- Weight factors for target selection
+local PRIORITY_WEIGHT = 1000
+local HEALTH_WEIGHT = 1
+local DISTANCE_WEIGHT = 10  -- Adjust this to change the importance of distance
 
 function get_targets.set_debug_mode(mode)
     debug_mode = mode
+end
+
+function get_targets.set_priority(target_type, priority)
+    if priority_map[target_type] then
+        priority_map[target_type] = priority
+    end
 end
 
 function get_targets.is_valid_enemy(actor)
@@ -22,110 +50,132 @@ function get_targets.is_valid_enemy(actor)
            not actor:is_basic_particle()
 end
 
+function get_targets.get_target_type(actor)
+    if actor_type_cache[actor] then
+        return actor_type_cache[actor]
+    end
+
+    local name = actor:get_skin_name()
+    local target_type
+    if actor:is_boss() then
+        target_type = "Boss"
+    elseif name:match("^BSK_HellSeeker") then
+        target_type = "HellSeeker"
+    elseif actor:is_champion() then
+        target_type = "Champion"
+    elseif name == "MarkerLocation_BSK_Occupied" then
+        target_type = "Membrane"
+    elseif name == "BSK_Structure_BonusAether" then
+        target_type = "Mass"
+    elseif name == "BSK_Soulspire" then
+        target_type = "Spire"
+    elseif actor:is_elite() then
+        target_type = "Elite"
+    else
+        target_type = "Monster"
+    end
+
+    actor_type_cache[actor] = target_type
+    return target_type
+end
+
+function get_targets.calculate_score(priority, health, distance)
+    return priority * PRIORITY_WEIGHT + health * HEALTH_WEIGHT - math.sqrt(distance) * DISTANCE_WEIGHT
+end
+
 function get_targets.select_target(source, dist)
+    if not source then
+        console.print("Error: Invalid source provided to select_target")
+        return nil
+    end
+
     local current_time = get_time_since_inject()
+    local dist_squared = dist * dist
     
     -- Check if we're still in cooldown and if the current target is still valid
-    if current_target and current_time - last_target_switch_time < TARGET_SWITCH_COOLDOWN then
-        if get_targets.is_valid_enemy(current_target) and source:dist_to(current_target:get_position()) <= dist then
-            return current_target
+    if current_target_id and current_time - last_target_switch_time < TARGET_SWITCH_COOLDOWN then
+        for _, actor in pairs(actors_manager.get_enemy_actors()) do
+            if actor:get_id() == current_target_id and 
+               get_targets.is_valid_enemy(actor) and 
+               source:squared_dist_to_ignore_z(actor:get_position()) <= dist_squared then
+                return actor
+            end
         end
     end
 
-    local targets = {
-        Boss = {dist = math.huge},
-        HellSeeker = {dist = math.huge},
-        Champion = {dist = math.huge},
-        Elite = {dist = math.huge},
-        Membrane = {dist = math.huge},
-        Mass = {dist = math.huge},
-        Spire = {dist = math.huge},
-        Monster = {dist = math.huge},
-    }
-
-    local target_counts = {
-        Boss = 0, HellSeeker = 0, Champion = 0, Elite = 0,
-        Membrane = 0, Mass = 0, Spire = 0, Monster = 0
-    }
-
-    local all_target_names = {}
-
-    local function update_target(target_type, actor, distance)
-        if distance < targets[target_type].dist then
-            targets[target_type].dist = distance
-            targets[target_type].actor = actor
-        end
-        target_counts[target_type] = target_counts[target_type] + 1
+    local target_counts = {}
+    for _, t in ipairs(target_types) do
+        target_counts[t] = 0
     end
 
-    for _, actor in pairs(actors_manager:get_all_actors()) do
+    local all_target_info = debug_mode and {} or nil
+    local best_target, best_score = nil, -math.huge
+
+    for _, actor in pairs(actors_manager.get_enemy_actors()) do
         if get_targets.is_valid_enemy(actor) then
-            local distance = source:dist_to(actor:get_position())
+            local distance_squared = source:squared_dist_to_ignore_z(actor:get_position())
 
-            if distance <= dist and not evade.is_dangerous_position(actor:get_position()) then
-                local name = actor:get_skin_name()
+            if distance_squared <= dist_squared and not evade.is_dangerous_position(actor:get_position()) then
+                local target_type = get_targets.get_target_type(actor)
 
-                if debug_mode then
-                    table.insert(all_target_names, name)
-                    console.print("Checking actor: " .. name .. " (Current Health: " .. actor:get_current_health() .. ")")
+                target_counts[target_type] = target_counts[target_type] + 1
+
+                local priority = priority_map[target_type]
+                local health = actor:get_current_health()
+                local score = get_targets.calculate_score(priority, health, distance_squared)
+
+                if score > best_score then
+                    best_target = actor
+                    best_score = score
                 end
 
-                if actor:is_boss() then
-                    update_target("Boss", actor, distance)
-                elseif name:match("^BSK_HellSeeker") then
-                    update_target("HellSeeker", actor, distance)
-                elseif actor:is_champion() then
-                    update_target("Champion", actor, distance)
-                elseif name == "MarkerLocation_BSK_Occupied" then
-                    update_target("Membrane", actor, distance)
-                elseif name == "BSK_Structure_BonusAether" then
-                    update_target("Mass", actor, distance)
-                elseif name == "BSK_Soulspire" then
-                    update_target("Spire", actor, distance)
-                elseif actor:is_elite() then
-                    update_target("Elite", actor, distance)
-                else
-                    update_target("Monster", actor, distance)
+                if debug_mode then
+                    table.insert(all_target_info, {
+                        name = actor:get_skin_name(),
+                        id = actor:get_id(),
+                        type_id = actor:get_type_id(),
+                        type = target_type,
+                        health = health,
+                        distance = math.sqrt(distance_squared),
+                        score = score
+                    })
                 end
             end
         end
     end
 
-    local selected_target = nil
-    for _, target_type in ipairs({"Boss", "HellSeeker", "Champion", "Membrane", "Mass", "Spire", "Elite", "Monster"}) do
-        if targets[target_type].actor then
-            selected_target = targets[target_type].actor
-            break
-        end
-    end
-
-    if selected_target and selected_target ~= current_target then
+    if best_target and (best_target:get_id() ~= current_target_id or best_score > current_target_priority) then
         last_target_switch_time = current_time
-        current_target = selected_target
+        current_target_id = best_target:get_id()
+        current_target_priority = best_score
     end
 
     if debug_mode then
-        console.print("All targets (" .. #all_target_names .. "): " .. table.concat(all_target_names, ", "))
-        console.print("Target counts:")
-        for _, target_type in ipairs({"Boss", "HellSeeker", "Champion", "Membrane", "Mass", "Spire", "Elite", "Monster"}) do
-            console.print("  " .. target_type .. ": " .. target_counts[target_type])
+        console.print("All targets (" .. #all_target_info .. "):")
+        table.sort(all_target_info, function(a, b) return a.score > b.score end)
+        for _, info in ipairs(all_target_info) do
+            console.print(string.format("  Name: %s, ID: %d, Type: %s, Health: %.2f, Distance: %.2f, Score: %.2f", 
+                          info.name, info.id, info.type, info.health, info.distance, info.score))
         end
-        if selected_target then
-            local selected_health = selected_target:get_current_health()
-            console.print("Selected target: " .. selected_target:get_skin_name() .. 
-                          " (Type: " .. (selected_target:is_boss() and "Boss" or
-                                         selected_target:is_champion() and "Champion" or
-                                         selected_target:is_elite() and "Elite" or
-                                         targets.HellSeeker.actor == selected_target and "HellSeeker" or
-                                         "Normal") .. 
-                          ", Health: " .. selected_health .. 
-                          ", Distance: " .. string.format("%.2f", source:dist_to(selected_target:get_position())) .. ")")
+        console.print("Target counts:")
+        for _, t in ipairs(target_types) do
+            console.print("  " .. t .. ": " .. target_counts[t])
+        end
+        if best_target then
+            local best_type = get_targets.get_target_type(best_target)
+            console.print(string.format("Selected target: %s (ID: %d, Type: %s, Health: %.2f, Distance: %.2f, Score: %.2f)",
+                          best_target:get_skin_name(),
+                          best_target:get_id(),
+                          best_type,
+                          best_target:get_current_health(),
+                          math.sqrt(source:squared_dist_to_ignore_z(best_target:get_position())),
+                          best_score))
         else
             console.print("No target selected")
         end
     end
 
-    return selected_target
+    return best_target
 end
 
 return get_targets
