@@ -43,7 +43,6 @@ local enter_horde_task = {
                     tracker.horde_attempt_count = tracker.horde_attempt_count + 1
                     console.print("Attempt " .. tracker.horde_attempt_count .. " to open horde portal")
 
-                    if utils.press_enter_powershell(script_path) then --if utils.press_enter_python(python_path) then --
                     if utils.press_enter_python(python_path) then --if utils.press_enter_powershell(script_path) then --
 
                         -- Wait for PowerShell script to potentially open the portal
