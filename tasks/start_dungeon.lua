@@ -1,6 +1,8 @@
 local utils = require "core.utils"
 local enums = require "data.enums"
 local tracker = require "core.tracker"
+local settings = require "core.settings"
+local gui = require "gui"
 
 local function use_dungeon_sigil()
     if utils.get_horde_portal() then
@@ -29,6 +31,8 @@ local function use_dungeon_sigil()
         end
     end
     console.print("Dungeon Sigil not found in inventory.")
+    settings.enabled = false
+    gui.elements.main_toggle:set(settings.enabled)
     return false
 end
 

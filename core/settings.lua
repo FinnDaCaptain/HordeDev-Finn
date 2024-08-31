@@ -1,5 +1,6 @@
 local gui = require "gui"
-local settings = {
+
+settings = {
     enabled = false,
     reset_time = 1, -- Default to 1
     selected_chest_type = 1, -- GEAR = 0, MATERIALS = 1, GOLD = 2
