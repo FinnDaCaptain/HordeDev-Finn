@@ -25,7 +25,7 @@ local exit_horde_task = {
         local elapsed_time = current_time - tracker.exit_horde_start_time
         if elapsed_time >= 5 then
             console.print("5-second timer completed. Resetting all dungeons")
-            reset_all_dungeons()
+            leave_dungeon()
             tracker.exit_horde_completed = true
             console.print("Horde exit completed")
         else
