@@ -1,7 +1,6 @@
 local utils = require "core.utils"
 local enums = require "data.enums"
 local tracker = require "core.tracker"
-local explorer = require "core.explorer"
 
 local MAX_ATTEMPTS = 5
 local ATTEMPT_DELAY = 5 -- seconds
