@@ -68,3 +68,5 @@ If you encounter any issues:
 - Ensure all prerequisites are correctly installed
 - Double-check that the file paths in `enter_horde.lua` are correct
 - Verify you are in front of the portal when you start the bot
+- If your computer language is not english, verify your window name. If not "Diablo IV"
+  update the python script to your window name.

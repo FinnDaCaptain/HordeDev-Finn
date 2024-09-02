@@ -1,8 +1,19 @@
 Invoke-Expression @'
 $wshell = New-Object -ComObject wscript.shell
-$wshell.AppActivate('Diablo IV')
+
+# Attempt to activate the English title
+$activated = $wshell.AppActivate('Diablo IV')
+
+# If the English title was not found, attempt to activate the Chinese title
+if (-not $activated) {
+    $activated = $wshell.AppActivate('暗黑破坏神IV')
+}
+
+# Sleep for a short duration to ensure the window is activated
 Start-Sleep -Seconds 1
-if ($wshell.AppActivate('Diablo IV')) {
+
+# Check if the window was successfully activated
+if ($activated) {
     Write-Output "Window activated"
     $wshell.SendKeys('{ENTER}')
     Write-Output "Enter key sent"

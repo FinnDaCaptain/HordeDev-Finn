@@ -13,7 +13,7 @@ def send_enter_key(hwnd):
 
 def main():
     # Find the window handle for Diablo IV
-    hwnd = win32gui.FindWindow(None, "Diablo IV")
+    hwnd = win32gui.FindWindow(None, "Diablo IV") or win32gui.FindWindow(None, "暗黑破坏神IV")
     if hwnd:
         print("Found Diablo IV window. Bringing it to the foreground...")
         
