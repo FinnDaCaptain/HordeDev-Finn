@@ -51,6 +51,7 @@ Option 2: Manual Download
 1. Start Diablo IV
 2. Start the bot outside of the portal
 3. Use the in-game menu to configure chests you want to loot at the end.
+4. Keep the bot minimized to prevent any press enter issues.
 
 ## Staying Updated
 
