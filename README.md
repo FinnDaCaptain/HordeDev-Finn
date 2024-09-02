@@ -15,6 +15,7 @@ If you don't have Python installed:
 1. Open Command Prompt
 2. Type `python`
 3. If Python is not installed, the Microsoft Store will open, allowing you to install it
+4. After installation, close command prompt and reopen. Type python --version to ensure it is working
 
 ### 2. Install pywin32
 
@@ -48,8 +49,8 @@ Option 2: Manual Download
 ## Usage
 
 1. Start Diablo IV
-2. Run the bot script (instructions depend on your setup)
-3. Use the in-game menu to configure and activate the bot
+2. Start the bot outside of the portal
+3. Use the in-game menu to configure chests you want to loot at the end.
 
 ## Staying Updated
 
