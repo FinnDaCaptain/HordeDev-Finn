@@ -7,8 +7,8 @@ local ATTEMPT_DELAY = 5 -- seconds
 local POWERSHELL_WAIT_TIME = 3 -- seconds
 local horde_portal_coords = vec3:new(30.581279754639, -477.47695922852, -24.44921875)
 
-local script_path = "C:your_directory\\diablo_qqt\\scripts\\HordeDev-Finn\\send_key.ps1" -- Change these to suit your filepaths
-local python_path = "C:your_directory\\diablo_qqt\\scripts\\HordeDev-Finn\\send_key.py"
+local script_path = "C:\\your_directory\\diablo_qqt\\scripts\\HordeDev-Finn\\send_key.ps1" -- Change these to suit your filepaths
+local python_path = "C:\\your_directory\\diablo_qqt\\scripts\\HordeDev-Finn\\send_key.py"
 
 local function enter_horde(portal)
     if portal and utils.distance_to(portal) < 2 then
