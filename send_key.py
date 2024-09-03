@@ -12,19 +12,20 @@ def send_enter_key(hwnd):
     print("Enter key sent successfully.")
 
 def main():
-    # Find the window handle for Diablo IV
-    hwnd = win32gui.FindWindow(None, "Diablo IV") or win32gui.FindWindow(None, "暗黑破坏神IV")
+    # Find the window handle for Diablo IV (English, Simplified Chinese, Traditional Chinese)
+    hwnd = (win32gui.FindWindow(None, "Diablo IV") or
+            win32gui.FindWindow(None, "暗黑破坏神IV") or
+            win32gui.FindWindow(None, "《暗黑破壞神 IV》"))
+    
     if hwnd:
         print("Found Diablo IV window. Bringing it to the foreground...")
-        
-
+        win32gui.SetForegroundWindow(hwnd)
         
         # Create a new thread for sending the key
         key_thread = threading.Thread(target=send_enter_key, args=(hwnd,))
         key_thread.start()
         
         print("Main thread continues execution...")
-        # You can add more code here that will run concurrently with the key-sending process
     else:
         print("Diablo IV window not found.")
 
