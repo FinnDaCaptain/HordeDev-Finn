@@ -42,7 +42,7 @@ Option 2: Manual Download
 1. Navigate to the `enter_horde.lua` file in the bot directory
 2. Locate the following line:
    ```lua
-   local python_path = "C:your_directory\\diablo_qqt\\scripts\\HordeDev-Finn\\send_key.py"
+   local python_path = "C:\\your_directory\\diablo_qqt\\scripts\\HordeDev-Finn\\send_key.py"
    ```
 3. Update these paths to match the location where you extracted the bot files on your computer
 
